@@ -5,11 +5,11 @@ go;
 
 create table eswatini.dbo.client (
     id bigint identity(1,1) primary key,
-    first_name VARCHAR not null,
-    last_name VARCHAR not null,
+    first_name VARCHAR(50) not null,
+    last_name VARCHAR(50) not null,
     date_of_birth date not null,
     is_verified bit,
-    phone_number varchar not null unique
+    phone_number varchar(20) not null unique
 );
 
 create table eswatini.dbo.loan (
@@ -24,7 +24,7 @@ create table eswatini.dbo.loan (
 
 create table eswatini.dbo.transactions (
     id bigint identity(1,1) primary key,
-    transaction_type varchar not null,
+    transaction_type varchar(20) not null,
     transaction_date datetime not null,
     amount money not null,
     loan_id bigint not null,
@@ -34,7 +34,7 @@ create table eswatini.dbo.transactions (
 
 create table eswatini.dbo.charges (
     id bigint identity(1,1) primary key,
-    name varchar not null unique,
+    name varchar(20) not null unique,
     amount money
 );
 
@@ -50,5 +50,5 @@ create table eswatini.dbo.loan_charges (
 
 create table eswatini.dbo.dummy (
     id bigint identity(1,1) primary key,
-    text varchar not null
-)
+    text varchar(20) not null
+);
