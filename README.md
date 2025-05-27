@@ -13,7 +13,9 @@ In this demo project:
     4. create a virtual environment for the project python -m venv venv
     5. activate the virtual environment: -- look this up depending on os --. For linux `source  ./venv/bin/activate`
     6. install project dependencies listed in requirements.txt file with `pip install -r requirements.txt`
-    7. connect to the 2 databases via any third party app: dbeaver || datagrip || etc
-    8. run the queries present in the queries.sql file sequentially against the mssql server database
+    7. create system environment variables to match the variables in the compose.yaml file.
+    8. get the databases up and running with docker compose up
+    9. connect to the 2 databases via any third party app: dbeaver || datagrip || etc
+    10. run the queries present in the queries.sql file sequentially against the mssql server database
 
     -- This has gotten you to the starting line the next step is to then move this data to a postgres db
