@@ -19,3 +19,11 @@ In this demo project:
     10. run the queries present in the queries.sql file sequentially against the mssql server database
 
     -- This has gotten you to the starting line the next step is to then move this data to a postgres db
+
+    11. Ensure you have microsoft odbc server for sql server installed: https://learn.microsoft.com/en-us/sql/connect/python/pyodbc/step-3-proof-of-concept-connecting-to-sql-using-pyodbc?view=sql-server-ver17
+    
+    --
+
+    12. Run the mssql_postgres.py: The script moves the data from sql server to postgres after
+        i. Validating database connections
+        ii.
