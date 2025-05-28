@@ -1,6 +1,4 @@
-# demo-f_e-migration
-
-Data Migration Solution
+# Data Migration Solution
 
 In this project there is a demo/test situation:
     The example situation is a loan lending company wants to move loan data from sql server to a their data migration server which has a postgres db.
