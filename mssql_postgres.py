@@ -1,6 +1,7 @@
 import os
 import psycopg2
 import pyodbc
+from psycopg2.extras import execute_values
 
 
 source_db = {
@@ -20,6 +21,7 @@ migration_db = {
 } 
 
 FULL_MIGRATION = True
+BATCH_SIZE = 10000 # Number of rows to insert in each migration batch
 
 
 def test_migration_server_db_connection():
@@ -123,7 +125,33 @@ def create_postgres_tables_from_sqlserver(source_conn,migration_server_conn,tabl
             create_table_query = f"CREATE TABLE {mirgation_server_table_name} ({', '.join(col_defs)});"
 
 
-# def migrate_tables(source_conn, migration_conn, tables):
+def migrate_table_data(source_conn, migration_conn, tables):
+    for table in tables:
+        mirgation_server_table_name = f"{table.split('.')[0]}_{table.split('.')[-1]}"
+        print(f"Migrating data for table {mirgation_server_table_name}")
+        table_cols = None
+        with migration_conn.cursor() as cursor:
+            get_cols_query = f"select column_name from information_schema.columns where table_name = '{mirgation_server_table_name}'"
+            cursor.execute(get_cols_query)
+            result = cursor.fetchall()
+            table_cols = ",".join([f"{col_tuple[0]}" for col_tuple in result]).strip()
+            # clear the table before inserting new data
+            cursor.execute(f"delete from {mirgation_server_table_name}")
+        insert_sql = f'INSERT INTO {mirgation_server_table_name} ({table_cols}) VALUES %s'
+        offset = 0
+        while True:
+            rows = source_conn.execute(
+                    f"SELECT {table_cols} FROM {table} ORDER BY 1 OFFSET ? ROWS FETCH NEXT ? ROWS ONLY", 
+                    offset, BATCH_SIZE
+            ).fetchall()
+            if not rows:
+                break
+            with migration_conn.cursor() as cursor:
+                execute_values(cursor, insert_sql, rows)
+                migration_conn.commit()
+            offset += BATCH_SIZE
+        print(f"Finished migrating {mirgation_server_table_name} table data")
+    print("Data migration completed for all tables.")
     
         
 
@@ -140,7 +168,7 @@ if __name__ == "__main__":
             else:
                 print(f'Source db tables found {all_tables}')
             create_postgres_tables_from_sqlserver(source_db_conn, migration_server_conn, all_tables)
-            # migrate_tables(source_db_conn, migration_server_conn, all_tables)
+            migrate_table_data(source_db_conn, migration_server_conn, all_tables)
         close_db_connections(source_db_conn, migration_server_conn)
     else:
         close_db_connections(source_db_conn, migration_server_conn)

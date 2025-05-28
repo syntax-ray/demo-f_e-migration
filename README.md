@@ -1,9 +1,9 @@
 # demo-f_e-migration
 
-This is a demo project to set up and test data migration from sql server to postgres to a third party system.
+Data Migration Solution
 
-In this demo project:
-    The example situation is a loan lending company wants to move loan data from sql server to the third party system.
+In this project there is a demo/test situation:
+    The example situation is a loan lending company wants to move loan data from sql server to a their data migration server which has a postgres db.
 
 
 ## How to run
@@ -31,7 +31,7 @@ In this demo project:
 
 
 ## Future work
--[] Add partial SQL server to Postgres migration
+-[] Add partial SQL server to Postgres table migration
 -[] Add the complete mapping for all sql server data types.
 -[] Optimize the speed of data migration to improve performance, especially for large tables. 
 -[] Add postgres to sql server migration script.
@@ -40,3 +40,9 @@ In this demo project:
 -[] Add SQL to MongoDB script
 -[] Keep design and readme files up to date
 -[] Containerize the entire application
+-[] Add tests to ensure changes do not break the current working implementatiton.
+-[] Send std output to log files
+-[] Add partial table data migration
+
+
+## Contributions
