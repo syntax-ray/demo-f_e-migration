@@ -1,6 +1,6 @@
 -- Source db ddl:
 
-create database eswatini
+create database source_db
 go;
 
 create table eswatini.dbo.client (

@@ -6,7 +6,7 @@ In this demo project:
     The example situation is a loan lending company wants to move loan data from sql server to the third party system.
 
 
-# How to run
+## How to run
     1. ensure docker and python is installed on your machine
     2. clone this repositiory
     3. cd into the cloned repository directory and run docker compose up to start the containers
@@ -26,4 +26,17 @@ In this demo project:
 
     12. Run the mssql_postgres.py: The script moves the data from sql server to postgres after
         i. Validating database connections
-        ii.
+        ii. Fetching the tables to migrate
+        iii. Creating equivalent tables on postgres after mapping the sql server column data types to postgres data types
+
+
+## Future work
+-[] Add partial SQL server to Postgres migration
+-[] Add the complete mapping for all sql server data types.
+-[] Optimize the speed of data migration to improve performance, especially for large tables. 
+-[] Add postgres to sql server migration script.
+-[] Make the source and target databases parameters to the program
+-[] Add constraints migration to the scripts ie: primary and foreign keys
+-[] Add SQL to MongoDB script
+-[] Keep design and readme files up to date
+-[] Containerize the entire application
