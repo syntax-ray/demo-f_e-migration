@@ -22,6 +22,7 @@ migration_db = {
 
 FULL_MIGRATION = True
 BATCH_SIZE = 10000 # Number of rows to insert in each migration batch
+MSSQL_ODBC_DRIVER = 'ODBC Driver 18 for SQL Server'
 
 
 def test_migration_server_db_connection():
@@ -45,7 +46,7 @@ def test_migration_server_db_connection():
     
 
 def test_source_db_connection():
-    conn_str = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={source_db["host"]}; \
+    conn_str = f'DRIVER={MSSQL_ODBC_DRIVER};SERVER={source_db["host"]}; \
                  UID={source_db["user"]};PWD={source_db["password"]};PORT={source_db["port"]}; \
                  DATABASE={source_db["database"]};TrustServerCertificate=yes;'
 
@@ -172,11 +173,4 @@ if __name__ == "__main__":
         close_db_connections(source_db_conn, migration_server_conn)
     else:
         close_db_connections(source_db_conn, migration_server_conn)
-        exit(1)  
-
-    
-
-
-    # y = migration_server_conn.cursor().execute(f"SELECT 1 FROM information_schema.tables WHERE table_name = 'dbo_client'").fetchall()
-    # print(y)
-    # print(source_db)
+        exit(1)
