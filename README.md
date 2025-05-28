@@ -27,18 +27,18 @@ In this project there is a demo/test situation:
 
 
 ## Future work
--[] Add partial SQL server to Postgres table migration
--[] Add the complete mapping for all sql server data types.
--[] Optimize the speed of data migration to improve performance, especially for large tables. 
--[] Add postgres to sql server migration script.
--[] Make the source and target databases parameters to the program
--[] Add constraints migration to the scripts ie: primary and foreign keys
--[] Add SQL to MongoDB script
--[] Keep design and readme files up to date
--[] Containerize the entire application
--[] Add tests to ensure changes do not break the current working implementatiton.
--[] Send std output to log files
--[] Add partial table data migration
+- [] Add partial SQL server to Postgres table migration
+- [] Add the complete mapping for all sql server data types.
+- [] Optimize the speed of data migration to improve performance, especially for large tables. 
+- [] Add postgres to sql server migration script.
+- [] Make the source and target databases parameters to the program
+- [] Add constraints migration to the scripts ie: primary and foreign keys
+- [] Add SQL to MongoDB script
+- [] Keep design and readme files up to date
+- [] Containerize the entire application
+- [] Add tests to ensure changes do not break the current working implementatiton.
+- [] Send std output to log files
+- [] Add partial table data migration
 
 
 ## Contributions
