@@ -23,6 +23,8 @@ migration_db = {
 FULL_MIGRATION = True
 BATCH_SIZE = 10000 # Number of rows to insert in each migration batch
 MSSQL_ODBC_DRIVER = 'ODBC Driver 18 for SQL Server'
+# Should be formatted as schema.table
+EXCLUSION_SET = {"dbo.dummy",} 
 
 
 def test_migration_server_db_connection():
@@ -70,7 +72,11 @@ def get_source_db_tables(conn):
     tables = conn.execute(query).fetchall()
     for table_tuple in tables:
         schema, table = table_tuple
-        table_list.append(f'{schema}.{table}') 
+        table_name = f'{schema}.{table}'
+        if table_name not in EXCLUSION_SET:
+            table_list.append(table_name) 
+        else:
+            print(f"Exluding {table_name} from migration")
     return table_list
 
 

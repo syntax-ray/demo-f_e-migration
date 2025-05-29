@@ -27,7 +27,7 @@ In this project there is a demo/test situation:
 
 
 ## Future work
-- [] Add partial SQL server to Postgres table migration
+- [x] Add partial SQL server to Postgres table migration
 - [] Add the complete mapping for all sql server data types.
 - [] Optimize the speed of data migration to improve performance, especially for large tables. 
 - [] Add postgres to sql server migration script.
