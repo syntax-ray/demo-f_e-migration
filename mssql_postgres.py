@@ -23,8 +23,10 @@ migration_db = {
 FULL_MIGRATION = True
 BATCH_SIZE = 10000 # Number of rows to insert in each migration batch
 MSSQL_ODBC_DRIVER = 'ODBC Driver 18 for SQL Server'
-# Should be formatted as schema.table
-EXCLUSION_SET = {"dbo.dummy",} 
+# Edit to set tables to exclude. Should be formatted as schema.table. Full migration should be set to false.
+EXCLUSION_SET = set()
+# Edit to set tables to include. Should be formatted as schema.table. FUll migration should be set to false.
+INCLUSION_SET = set()
 
 
 def test_migration_server_db_connection():
@@ -73,10 +75,17 @@ def get_source_db_tables(conn):
     for table_tuple in tables:
         schema, table = table_tuple
         table_name = f'{schema}.{table}'
-        if table_name not in EXCLUSION_SET:
+        if FULL_MIGRATION:
             table_list.append(table_name) 
-        else:
-            print(f"Exluding {table_name} from migration")
+        else:    
+            if table_name not in EXCLUSION_SET:
+                if not INCLUSION_SET:
+                    table_list.append(table_name) 
+                else:
+                    if table_name in INCLUSION_SET:
+                        table_list.append(table_name)
+            else:
+                print(f"Exluding {table_name} from migration")
     return table_list
 
 
@@ -166,16 +175,15 @@ if __name__ == "__main__":
     migration_sever_conn_ok, migration_server_conn = test_migration_server_db_connection()
     source_db_conn_ok, source_db_conn = test_source_db_connection()
     if (migration_sever_conn_ok and source_db_conn_ok):
-        if FULL_MIGRATION:
-            all_tables = get_source_db_tables(source_db_conn)
-            if not all_tables:
-                print("Source database has no tables: nothing to migrate")
-                close_db_connections(source_db_conn, migration_server_conn)
-                exit(1)
-            else:
-                print(f'Source db tables found {all_tables}')
-            create_postgres_tables_from_sqlserver(source_db_conn, migration_server_conn, all_tables)
-            migrate_table_data(source_db_conn, migration_server_conn, all_tables)
+        all_tables = get_source_db_tables(source_db_conn)
+        if not all_tables:
+            print("Source database has no tables: nothing to migrate")
+            close_db_connections(source_db_conn, migration_server_conn)
+            exit(1)
+        else:
+            print(f'Source db tables found {all_tables}')
+        create_postgres_tables_from_sqlserver(source_db_conn, migration_server_conn, all_tables)
+        migrate_table_data(source_db_conn, migration_server_conn, all_tables)
         close_db_connections(source_db_conn, migration_server_conn)
     else:
         close_db_connections(source_db_conn, migration_server_conn)
