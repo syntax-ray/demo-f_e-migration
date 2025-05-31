@@ -162,3 +162,101 @@ BEGIN
     VALUES ('Dummy Text ' + CAST(@d AS VARCHAR));
     SET @d += 1;
 END;
+
+
+-- test full mapping of sql server to postgres
+CREATE TABLE dbo.type_mapping_test (
+                                     id INT PRIMARY KEY,
+                                     tiny_col TINYINT,
+                                     smallint_col SMALLINT,
+                                     int_col INT,
+                                     bigint_col BIGINT,
+                                     bit_col BIT,
+                                     decimal_col DECIMAL(5, 2),
+                                     numeric_col NUMERIC(6, 3),
+                                     money_col MONEY,
+                                     smallmoney_col SMALLMONEY,
+                                     float_col FLOAT,
+                                     real_col REAL,
+                                     date_col DATE,
+                                     time_col TIME(3),
+                                     datetime_col DATETIME,
+                                     datetime2_col DATETIME2(3),
+                                     datetimeoffset_col DATETIMEOFFSET(3),
+                                     smalldatetime_col SMALLDATETIME,
+                                     char_col CHAR(5),
+                                     varchar_col VARCHAR(50),
+                                     text_col TEXT,
+                                     nchar_col NCHAR(5),
+                                     nvarchar_col NVARCHAR(50),
+                                     ntext_col NTEXT,
+                                     binary_col BINARY(4),
+                                     varbinary_col VARBINARY(50),
+                                     image_col IMAGE,
+                                     uniqueidentifier_col UNIQUEIDENTIFIER,
+                                     xml_col XML
+);
+
+INSERT INTO dbo.type_mapping_test VALUES
+                                    (
+                                        1,
+                                        127,                          -- tiny_col
+                                        32000,                        -- smallint_col
+                                        123456,                       -- int_col
+                                        1234567890123,                -- bigint_col
+                                        1,                            -- bit_col
+                                        123.45,                       -- decimal_col
+                                        456.789,                      -- numeric_col
+                                        1000.00,                      -- money_col
+                                        50.25,                        -- smallmoney_col
+                                        3.14159265359,                -- float_col
+                                        2.71,                         -- real_col
+                                        '2023-01-01',                 -- date_col
+                                        '12:34:56.789',               -- time_col
+                                        '2023-01-01 12:34:56',        -- datetime_col
+                                        '2023-01-01 12:34:56.789',    -- datetime2_col
+                                        '2023-01-01 12:34:56.789 +00:00', -- datetimeoffset_col
+                                        '2023-01-01 12:34:00',        -- smalldatetime_col
+                                        'ABCDE',                      -- char_col
+                                        'This is varchar',            -- varchar_col
+                                        'This is text data',          -- text_col
+                                        N'ÑÑÑÑÑ',                     -- nchar_col
+                                        N'This is nvarchar',          -- nvarchar_col
+                                        N'This is ntext',             -- ntext_col
+                                        0x01020304,                   -- binary_col
+                                        0x05060708,                   -- varbinary_col
+                                        0x11223344,                   -- image_col
+                                        NEWID(),                      -- uniqueidentifier_col
+                                        '<root><item>1</item></root>'-- xml_col
+                                    ),
+                                    (
+                                        2,
+                                        64,
+                                        16000,
+                                        654321,
+                                        9876543210987,
+                                        0,
+                                        543.21,
+                                        123.456,
+                                        2000.00,
+                                        75.75,
+                                        1.41421356237,
+                                        1.618,
+                                        '2024-01-01',
+                                        '23:59:59.123',
+                                        '2024-01-01 23:59:59',
+                                        '2024-01-01 23:59:59.123',
+                                        '2024-01-01 23:59:59.123 +05:30',
+                                        '2024-01-01 23:59:00',
+                                        'XYZ12',
+                                        'Another varchar string',
+                                        'Second row of text data',
+                                        N'ΩΩΩΩΩ',
+                                        N'Second nvarchar',
+                                        N'Second ntext value',
+                                        0x0A0B0C0D,
+                                        0x0E0F1011,
+                                        0x55667788,
+                                        NEWID(),
+                                        '<root><item>2</item></root>'
+                                    );
