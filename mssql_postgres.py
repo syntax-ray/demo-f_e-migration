@@ -131,9 +131,6 @@ def map_sqlserver_to_postgres_type(sql_type):
 
 
 def check_sortable_column_sql_server(data_type):
-    """
-    Returns the first safe, sortable column from a SQL Server table.
-    """
     excluded_types = {'image', 'text', 'ntext', 'sql_variant', 'xml', 'geometry', 'geography', 'hierarchyid'}
     if data_type.lower() not in excluded_types:
         return True
