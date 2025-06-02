@@ -23,9 +23,13 @@ migration_db = {
 FULL_MIGRATION = True
 BATCH_SIZE = 10000 # Number of rows to insert in each migration batch
 MSSQL_ODBC_DRIVER = 'ODBC Driver 18 for SQL Server'
-# Edit to set tables to exclude. Should be formatted as schema.table. Full migration should be set to false.
+# Edit to set tables to exclude. FULL_MIGRATION varible should be set to false. Should be formatted as schema."table".  
+# The examples of table names are: {'dbo."Project Details"', 'dbo."Employee Records"', 'dbo."loan"'}
+# It is formatted this way to handle weird table names ie: table names with spaces
 EXCLUSION_SET = set()
-# Edit to set tables to include. Should be formatted as schema.table. FUll migration should be set to false.
+# Edit to set tables to include. FULL_MIGRATION varible should be set to false. Should be formatted as schema."table". 
+# The examples of table names are: {'dbo."Project Details"', 'dbo."Employee Records"', 'dbo."loan"'}
+# It is formatted this way to handle weird table names ie: table names with spaces
 INCLUSION_SET = set()
 
 
@@ -74,7 +78,7 @@ def get_source_db_tables(conn):
     tables = conn.execute(query).fetchall()
     for table_tuple in tables:
         schema, table = table_tuple
-        table_name = f'{schema}.{table}'
+        table_name = f'{schema}."{table}"'
         if FULL_MIGRATION:
             table_list.append(table_name) 
         else:    
@@ -88,6 +92,8 @@ def get_source_db_tables(conn):
                 print(f"Exluding {table_name} from migration")
     return table_list
 
+def generate_postgres_name(name:str):
+    return "_".join(name.replace('"', "").strip().lower().split())
 
 def close_db_connections(source_conn, migration_conn):
     source_conn.close()
@@ -143,6 +149,7 @@ def create_postgres_tables_from_sqlserver(source_conn,migration_server_conn,tabl
     table_sortable_col = {}
     for table in tables:
         mirgation_server_table_name = f"{table.split('.')[0]}_{table.split('.')[-1]}"
+        mirgation_server_table_name = generate_postgres_name(mirgation_server_table_name)
         source_db_schema = table.split('.')[0]
         source_db_table_name = table.split('.')[-1]
         table_present = 0
@@ -150,7 +157,8 @@ def create_postgres_tables_from_sqlserver(source_conn,migration_server_conn,tabl
             cursor.execute(f"select count(*) FROM information_schema.tables where lower(table_type) = 'base table' and lower(table_schema) = 'public' and table_name = '{mirgation_server_table_name}'")
             result = cursor.fetchone()
             table_present = result[0]
-        columns = source_conn.execute(f"select COLUMN_NAME, DATA_TYPE from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{source_db_table_name}' and lower(TABLE_SCHEMA) = '{source_db_schema}'").fetchall()
+        get_columns_query = f'''select COLUMN_NAME, DATA_TYPE from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{source_db_table_name.replace('"', "")}' and lower(TABLE_SCHEMA) = '{source_db_schema}' '''.strip()
+        columns = source_conn.execute(get_columns_query).fetchall()
         if table_present:
             print(f"Table {mirgation_server_table_name} already exists in the migration database. Skipping creation.")
             for col in columns:
@@ -173,7 +181,7 @@ def create_postgres_tables_from_sqlserver(source_conn,migration_server_conn,tabl
                     print("Add this mapping to the map_sqlserver_to_postgres_type function to proceed")
                     exit(1)
                 else:
-                    col_defs.append(f"{col[0]} {postgres_datatype}")
+                    col_defs.append(f"{generate_postgres_name(col[0])} {postgres_datatype}")
             if col_defs and table in table_sortable_col:
                 create_table_query = f"CREATE TABLE IF NOT EXISTS {mirgation_server_table_name} ({', '.join(col_defs)});"
                 with migration_server_conn.cursor() as cursor:
@@ -188,28 +196,29 @@ def create_postgres_tables_from_sqlserver(source_conn,migration_server_conn,tabl
 def migrate_table_data(source_conn, migration_conn, tables, table_sortable_columns):
     for table in tables:
         mirgation_server_table_name = f"{table.split('.')[0]}_{table.split('.')[-1]}"
+        mirgation_server_table_name = generate_postgres_name(mirgation_server_table_name)
         print(f"Migrating data for table {mirgation_server_table_name}")
         table_cols = None
         with migration_conn.cursor() as cursor:
             # clear the table before inserting new data
             cursor.execute(f"delete from {mirgation_server_table_name}")
-        source_column_data_type_query = f"select column_name, data_type from information_schema.columns where table_name ='{table.split('.')[-1]}' and table_schema = '{table.split('.')[0]}'"
+        source_column_data_type_query = f'''select column_name, data_type from information_schema.columns where table_name ='{table.split('.')[-1].replace('"', "")}' and table_schema = '{table.split('.')[0]}' '''.strip()
         columns = source_conn.execute(source_column_data_type_query).fetchall()
         actual_columns = []
         # Handle column datatypes not supported by MSSQL_ODBC_DRIVER
         postgres_table_cols = []
         for column in columns:
             if column[1].lower() == "datetimeoffset":
-                actual_columns.append(f"CAST({column[0]} AS NVARCHAR(50)) AS {column[0]}")
+                actual_columns.append(f'''CAST("{column[0]}" AS NVARCHAR(50)) AS {column[0]}''')
             else:
-                actual_columns.append(column[0])
-            postgres_table_cols.append(column[0])
+                actual_columns.append(f'"{column[0]}"')
+            postgres_table_cols.append(generate_postgres_name(column[0]))
         postgres_table_cols = ",".join(postgres_table_cols).strip()
         table_cols = ",".join(actual_columns).strip()
         insert_sql = f'INSERT INTO {mirgation_server_table_name} ({postgres_table_cols}) VALUES %s'
         offset = 0
         while True:
-            selection_query = f"SELECT {table_cols} FROM {table} ORDER BY {table_sortable_columns[table]} OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"
+            selection_query = f'''SELECT {table_cols} FROM {table} ORDER BY "{table_sortable_columns[table]}" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY'''.strip()
             rows = source_conn.execute(
                     selection_query, 
                     offset, BATCH_SIZE
