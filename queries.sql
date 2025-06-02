@@ -260,3 +260,32 @@ INSERT INTO dbo.type_mapping_test VALUES
                                         NEWID(),
                                         '<root><item>2</item></root>'
                                     );
+
+
+-- Queries to test weird table and column names
+CREATE TABLE [Employee Records] (
+                                    [Employee ID] INT,
+                                    [First Name] NVARCHAR(50),
+                                    [Last Name] NVARCHAR(50),
+                                    [Job Title] NVARCHAR(100)
+);
+
+-- Insert two rows of dummy data
+INSERT INTO [Employee Records] ([Employee ID], [First Name], [Last Name], [Job Title])
+VALUES
+    (1, 'Alice', 'Smith', 'Software Engineer'),
+    (2, 'Bob', 'Johnson', 'Data Analyst');
+
+
+CREATE TABLE "Project Details" (
+                                   "Project ID" INT,
+                                   "Project Name" NVARCHAR(100),
+                                   "Start Date" DATE,
+                                   "End Date" DATE
+);
+
+-- Insert two rows of dummy data
+INSERT INTO "Project Details" ("Project ID", "Project Name", "Start Date", "End Date")
+VALUES
+    (1, 'Website Redesign', '2023-06-01', '2023-12-01'),
+    (2, 'Mobile App Launch', '2024-01-15', '2024-08-30');
